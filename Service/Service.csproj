@@ -86,6 +86,7 @@
   <ItemGroup>
     <Compile Include="BookManagementContext.cs" />
     <Compile Include="DAO\DataAccessLayer.cs" />
+    <Compile Include="Model\AspNetUser.cs" />
     <Compile Include="Model\Book.cs" />
     <Compile Include="Model\BookCategory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

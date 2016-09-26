@@ -31,11 +31,12 @@ namespace WebRole.Controllers
             blobClient.DefaultRequestOptions.RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(3), 3);
             
             imagesBlobContainer = blobClient.GetContainerReference("images");
-            
+            imagesBlobContainer.CreateIfNotExists();
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
             queueClient.DefaultRequestOptions.RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(3), 3);
             
             imagesQueue = queueClient.GetQueueReference("images");
+            imagesQueue.CreateIfNotExists();
         }
 
         public BookController()
@@ -71,10 +72,20 @@ namespace WebRole.Controllers
 
 
             DAL.Open();
-            DAL.Excutecommand("INSERT INTO Book(Name, Description, Active) VALUES(@p1,@p2,@p3);", new SqlParameter[] {
+            var Username = System.Web.HttpContext.Current.User.Identity.Name;
+            var users = DAL.SelectData("SELECT * FROM AspNetUsers WHERE Username=@p1", new SqlParameter[]
+            {
+                new SqlParameter("p1", Username),
+            });
+            var currentUser = ConvertDatatableToAspNetUsers(users).FirstOrDefault();
+
+            DAL.Excutecommand("INSERT INTO Book(Name, Description, Active,AccountId, ImageUrl) VALUES(@p1,@p2,@p3,@p4,@p5);", new SqlParameter[] {
                 new SqlParameter("p1", model.Name),
                 new SqlParameter("p2", model.Description),
-                new SqlParameter("p3", true)});
+                new SqlParameter("p3", true),
+                new SqlParameter("p4", currentUser.Id),
+                new SqlParameter("p5", model.ImageUrl)
+            });
 
             DAL.Close();
 
@@ -129,22 +140,6 @@ namespace WebRole.Controllers
             return View();
         }
 
-        private IEnumerable<Book> ConvertDatatableToBook(DataTable dt)
-        {
-            foreach (DataRow item in dt.Rows)
-            {
-                yield return new Book()
-                {
-                    Id = Convert.ToInt32(item["Id"]),
-                    Name = item["Name"].ToString(),
-                    Description = item["Description"].ToString(),
-                    ImageUrl = item["Id"].ToString(),
-                    ThumbnailUrl = item["ThumbnailUrl"].ToString(),
-                    Active = Convert.ToBoolean(item["Id"]),
-                };
-            }
-        }
-
         private async Task<CloudBlockBlob> UploadAndSaveBlobAsync(HttpPostedFileBase imageFile)
         {
             string blobName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
@@ -154,6 +149,44 @@ namespace WebRole.Controllers
                 await imageBlob.UploadFromStreamAsync(fileStream);
             }
             return imageBlob;
+        }
+
+        private IEnumerable<Book> ConvertDatatableToBook(DataTable dt)
+        {
+            foreach (DataRow item in dt.Rows)
+            {
+                yield return new Book()
+                {
+                    Id = Convert.ToInt32(item["Id"]),
+                    Name = item["Name"].ToString(),
+                    Description = item["Description"].ToString(),
+                    ImageUrl = item["ImageUrl"].ToString(),
+                    ThumbnailUrl = item["ThumbnailUrl"].ToString(),
+                    Active = Convert.ToBoolean(item["Id"]),
+                };
+            }
+        }
+
+        private IEnumerable<AspNetUser> ConvertDatatableToAspNetUsers(DataTable dt)
+        {
+            foreach (DataRow item in dt.Rows)
+            {
+                yield return new AspNetUser()
+                {
+                    Id = item["Id"].ToString(),
+                    Email = item["Email"].ToString(),
+                    EmailConfirmed = Convert.ToBoolean(item["EmailConfirmed"]),
+                    PasswordHash = item["PasswordHash"].ToString(),
+                    SecurityStamp = item["SecurityStamp"].ToString(),
+                    PhoneNumber = item["PhoneNumber"].ToString(),
+                    PhoneNumberConfirmed = Convert.ToBoolean(item["PhoneNumberConfirmed"]),
+                    TwoFactorEnabled = Convert.ToBoolean(item["TwoFactorEnabled"]),
+                    //LockoutEndDateUtc = Convert.ToDateTime(item["LockoutEndDateUtc"]),
+                    LockoutEnabled = Convert.ToBoolean(item["LockoutEnabled"]),
+                    UserName = item["UserName"].ToString(),
+                    AccessFailedCount = Convert.ToInt32(item["AccessFailedCount"]),
+                };
+            }
         }
     }
 }
