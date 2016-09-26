@@ -31,12 +31,13 @@ namespace WebRole.Controllers
             blobClient.DefaultRequestOptions.RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(3), 3);
             
             imagesBlobContainer = blobClient.GetContainerReference("images");
-            imagesBlobContainer.CreateIfNotExists();
+            //imagesBlobContainer.CreateIfNotExists();
+
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
             queueClient.DefaultRequestOptions.RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(3), 3);
             
             imagesQueue = queueClient.GetQueueReference("images");
-            imagesQueue.CreateIfNotExists();
+            //imagesQueue.CreateIfNotExists();
         }
 
         public BookController()
@@ -87,11 +88,14 @@ namespace WebRole.Controllers
                 new SqlParameter("p5", model.ImageUrl)
             });
 
+            var result = DAL.SelectData("SELECT * FROM Book", null);
+            var newBook = result.Rows[result.Rows.Count - 1];
+
             DAL.Close();
 
             if (imageBlob != null)
             {
-                var queueMessage = new CloudQueueMessage(model.Id.ToString());
+                var queueMessage = new CloudQueueMessage(newBook["Id"].ToString());
                 await imagesQueue.AddMessageAsync(queueMessage);
             }
             return RedirectToAction("Index");
