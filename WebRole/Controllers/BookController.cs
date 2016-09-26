@@ -48,7 +48,7 @@ namespace WebRole.Controllers
         public ActionResult Index()
         {
             DAL.Open();
-            var result = DAL.SelectData("SELECT * FROM Book", null);
+            var result = DAL.SelectData("SELECT Book.Id, Book.Name, Book.Description, Book.ImageUrl, Book.ThumbnailUrl, Book.Active, AspNetUsers.UserName FROM Book LEFT JOIN AspNetUsers ON Book.AccountId = AspNetUsers.Id", null);
             var model = ConvertDatatableToBook(result);
             DAL.Close();
             return View(model);
@@ -167,6 +167,7 @@ namespace WebRole.Controllers
                     ImageUrl = item["ImageUrl"].ToString(),
                     ThumbnailUrl = item["ThumbnailUrl"].ToString(),
                     Active = Convert.ToBoolean(item["Id"]),
+                    UserName = item["UserName"].ToString(),
                 };
             }
         }

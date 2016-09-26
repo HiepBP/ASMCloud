@@ -18,5 +18,6 @@ namespace Service.Model
         public string ImageUrl { get; set; }
         public string ThumbnailUrl { get; set; }
         public bool Active { get; set; }
+        public string UserName { get; set; }
     }
 }
