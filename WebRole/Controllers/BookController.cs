@@ -54,12 +54,14 @@ namespace WebRole.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public ActionResult Create()
         {
             Book model = new Book();
             return View();
         }
 
+        [Authorize]
         public async Task<ActionResult> Create(Book model, HttpPostedFileBase imageFile)
         {
             //Xu ly save hinh anh
@@ -98,6 +100,7 @@ namespace WebRole.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public ActionResult Edit(int Id)
         {
             DAL.Open();
@@ -114,6 +117,7 @@ namespace WebRole.Controllers
             return View(model);
         }
 
+        [Authorize]
         public ActionResult Edit(Book model, HttpPostedFileBase imageFile)
         {
             DAL.Open();
@@ -128,6 +132,7 @@ namespace WebRole.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public ActionResult Delete(int Id)
         {
             DAL.Open();
@@ -137,9 +142,10 @@ namespace WebRole.Controllers
 
             DAL.Close();
             Book model = new Book();
-            return View();
+            return RedirectToAction("Index");
         }
 
+        [Authorize]
         private async Task<CloudBlockBlob> UploadAndSaveBlobAsync(HttpPostedFileBase imageFile)
         {
             string blobName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
@@ -151,6 +157,7 @@ namespace WebRole.Controllers
             return imageBlob;
         }
 
+        [Authorize]
         private IEnumerable<Book> ConvertDatatableToBook(DataTable dt)
         {
             foreach (DataRow item in dt.Rows)
@@ -167,6 +174,7 @@ namespace WebRole.Controllers
             }
         }
 
+        [Authorize]
         private IEnumerable<AspNetUser> ConvertDatatableToAspNetUsers(DataTable dt)
         {
             foreach (DataRow item in dt.Rows)
