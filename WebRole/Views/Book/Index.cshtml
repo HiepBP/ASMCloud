@@ -8,7 +8,10 @@
 
 <h2>Index</h2>
 
-<a href="@(Url.Action("Create"))" class="btn btn-sm btn-primary">Create</a>
+@if (Request.IsAuthenticated)
+{
+    <a href="@(Url.Action("Create"))" class="btn btn-sm btn-primary">Create</a>
+}
 
 <table class="table table-striped">
     <thead>
@@ -17,10 +20,14 @@
             <th>Id</th>
             <th>Name</th>
             <th>Description</th>
+            <th>Category</th>
             <th>Image</th>
             <th>Thumbnail</th>
             <th>Active</th>
-            <th align="center">Action</th>
+            @if (Request.IsAuthenticated)
+            {
+                <th align="center">Action</th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -38,6 +45,9 @@
                     @(item.Description)
                 </td>
                 <td>
+                    @(item.Category)
+                </td>
+                <td>
                     <img src="@(item.ImageUrl)" alt="@(item.Name)" />
                 </td>
                 <td>
@@ -46,10 +56,13 @@
                 <td>
                     @(item.Active)
                 </td>
-                <td align="center">
-                    <a class="btn btn-sm btn-primary" href="@Url.Action("Edit",new { id=item.Id})"> Edit</a> <br/>
-                    <a class="btn btn-sm btn-primary" href="@Url.Action("Delete",new { id=item.Id})"> Delete</a>
-                </td>
+                @if (Request.IsAuthenticated)
+                {
+                    <td align="center">
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("Edit", new { id = item.Id })"> Edit</a> <br/>
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("Delete", new { id = item.Id })"> Delete</a>
+                    </td>
+                }
             </tr>
         }
 

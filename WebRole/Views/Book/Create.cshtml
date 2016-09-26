@@ -24,6 +24,14 @@
     </div>
 
     <div class="form-group">
+        @Html.LabelFor(q => q.Category, new { @class = "col-sm-2 control-label" })
+        <div class="col-md-10">
+            @Html.EnumDropDownListFor(q => q.Category, new { @class = "form-control" })
+            @Html.ValidationMessageFor(q => q.Category, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
         <label class="control-label col-md-2" for="imageFile">Image file</label>
         <div class="col-md-10">
             <input type="file" name="imageFile" accept="image/*" class="form-control fileupload" />
