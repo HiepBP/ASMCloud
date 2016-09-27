@@ -17,8 +17,61 @@
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
-input,
+/*input,
 select,
 textarea {
     max-width: 280px;
+}*/
+/* NAVIGATION BAR */
+div.navbar {
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+}
+a.navbar-brand {
+    color: #0094ff;
+    font-weight: bold;
+}
+div.navbar li a {
+    color: #000;
+}
+div.navbar li a:hover {
+    box-shadow: inset 0 -5px 0 0 #0094ff;    
+    background: #fff;
+}
+/* CREATE BOOK FORM */
+.createForm .form-group {
+    padding: 15px 0px;
+}
+.createForm .form-group select {
+    width: 100%;    
+}
+.createForm form .btn {
+    margin-top: 5px;
+}
+/* INDEX BOOK */
+.bookPanel {
+    margin-top: 15px;
+}
+.bookPanel .panel-body {
+    word-break: break-word;
+}
+.bookPanel span {
+    font-weight: bold;
+}
+.bookPanel img {
+    display: block;
+    margin: 0 auto;
+}
+/* DETAIL BOOK*/
+.detailBook img {
+    display: block;
+    margin: 0 auto;
+    width: 80%;
+}
+.detailBook span {
+    font-weight: bold;
+}
+.comments span {
+    font-weight: bold;
+    color: #0094ff;
 }

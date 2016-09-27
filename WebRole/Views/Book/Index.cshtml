@@ -6,52 +6,36 @@
     var username = System.Web.HttpContext.Current.User.Identity.Name;
     var count = 0;
 }
-
-<h2>Index</h2>
+<h2>Book management</h2>
 
 @if (Request.IsAuthenticated)
 {
-    <a href="@(Url.Action("Create"))" class="btn btn-sm btn-primary">Create</a>
+    <a href="@(Url.Action("Create"))" class="btn btn-primary">Create a new Book</a>
 }
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Thumbnail</th>
-            <th>Username</th>
-            <th align="center">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in this.Model)
-        {
-            <tr>
-                <td>@(++count)</td>
-                <td>
-                    @(item.Name)
-                </td>
-                <td>
-                    @(item.Description)
-                </td>
-                <td>
+else
+{
+    <a href="/Account/Login">Login to Create a new Book</a>
+}
+<div class="row">
+    @foreach (var item in this.Model)
+    {
+        <div class="col-md-4 bookPanel">
+            <div class="panel panel-default">
+                <div class="panel-body">
                     <img src="@(item.ThumbnailUrl)" alt="@(item.Name)" />
-                </td>
-                <td>
-                    @(item.UserName)
-                </td>
-                <td align="center">
-                    <a class="btn btn-sm btn-primary" href="@Url.Action("Detail", new { id = item.Id })"> Detail</a> <br />
+                    <hr />
+                    <p><span>Book Name: </span>@(item.Name)</p>
+                    <p><span>Description: </span>@(item.Description)</p>
+                    <p><span>Author: </span>@(item.UserName)</p>
+                    <a class="btn btn-sm btn-default" href="@Url.Action("Detail", new { id = item.Id })"> Detail</a>
                     @if (item.UserName == username)
                     {
-                        <a class="btn btn-sm btn-primary" href="@Url.Action("Edit",new { id=item.Id})"> Edit</a> <br />
-                        <a class="btn btn-sm btn-primary" href="@Url.Action("Delete",new { id=item.Id})"> Delete</a>
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("Edit",new { id=item.Id})"> Edit</a>
+                        <a class="btn btn-sm btn-danger" href="@Url.Action("Delete",new { id=item.Id})"> Delete</a>
                     }
-                </td>
-            </tr>
-        }
+                </div>
+            </div>
 
-    </tbody>
-</table>
+        </div>
+    }
+</div>
