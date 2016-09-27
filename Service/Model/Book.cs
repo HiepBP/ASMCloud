@@ -28,9 +28,9 @@ namespace Service.Model
     public class Book
     {
         public int Id { get; set; }
-        [DisplayName("Tên sách")]
+        [DisplayName("Title")]
         public string Name { get; set; }
-        [DisplayName("Giới thiệu")]
+        [DisplayName("Description")]
         public string Description { get; set; }
         public Category? Category { get; set; }
         public string ImageUrl { get; set; }
