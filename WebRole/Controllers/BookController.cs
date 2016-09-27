@@ -93,13 +93,12 @@ namespace WebRole.Controllers
             });
             var currentUser = ConvertDatatableToAspNetUsers(users).FirstOrDefault();
 
-            DAL.Excutecommand("INSERT INTO Book(Name, Description, Active,AccountId,Category, ImageUrl) VALUES(@p1,@p2,@p3,@p4,@p5,@p6);", new SqlParameter[] {
+            DAL.Excutecommand("INSERT INTO Book(Name, Description, Active,AccountId, ImageUrl) VALUES(@p1,@p2,@p3,@p4,@p5);", new SqlParameter[] {
                 new SqlParameter("p1", model.Name),
                 new SqlParameter("p2", model.Description),
                 new SqlParameter("p3", true),
                 new SqlParameter("p4", currentUser.Id),
-                new SqlParameter("p5", model.Category),
-                new SqlParameter("p6", String.IsNullOrEmpty(model.ImageUrl) ? "":model.ImageUrl)
+                new SqlParameter("p5", String.IsNullOrEmpty(model.ImageUrl) ? "":model.ImageUrl)
             });
 
             var result = DAL.SelectData("SELECT * FROM Book WHERE Active=1", null);
