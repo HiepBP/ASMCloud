@@ -3,6 +3,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.RetryPolicies;
+using Service;
 using Service.DAO;
 using Service.Model;
 using System;
@@ -26,17 +27,18 @@ namespace WebRole.Controllers
         private void InitializeStorage()
         {
             var storageAccount = CloudStorageAccount.Parse(RoleEnvironment.GetConfigurationSettingValue("StorageConnectionString"));
-            
+
             var blobClient = storageAccount.CreateCloudBlobClient();
             blobClient.DefaultRequestOptions.RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(3), 3);
-            
+
             imagesBlobContainer = blobClient.GetContainerReference("images");
-            imagesBlobContainer.CreateIfNotExists();
+            //imagesBlobContainer.CreateIfNotExists();
+
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
             queueClient.DefaultRequestOptions.RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(3), 3);
-            
+
             imagesQueue = queueClient.GetQueueReference("images");
-            imagesQueue.CreateIfNotExists();
+            //imagesQueue.CreateIfNotExists();
         }
 
         public BookController()
@@ -47,7 +49,7 @@ namespace WebRole.Controllers
         public ActionResult Index()
         {
             DAL.Open();
-            var result = DAL.SelectData("SELECT * FROM Book", null);
+            var result = DAL.SelectData("SELECT Book.Id, Book.Name, Book.Description, Book.ImageUrl, Book.ThumbnailUrl, Book.Active, Book.Category, AspNetUsers.UserName FROM Book LEFT JOIN AspNetUsers ON Book.AccountId = AspNetUsers.Id WHERE Book.Active=1", null);
             var model = ConvertDatatableToBook(result);
             DAL.Close();
             return View(model);
@@ -57,8 +59,18 @@ namespace WebRole.Controllers
         [Authorize]
         public ActionResult Create()
         {
+            DAL.Open();
+            var Username = System.Web.HttpContext.Current.User.Identity.Name;
+            var categoriesDB = DAL.SelectData("SELECT * FROM BookCategory WHERE Active=1", null);
+            var categories = Utils.ConvertDatatableToCategory(categoriesDB);
             Book model = new Book();
-            return View();
+            model.Categories = categories.Select(q => new SelectListItem()
+            {
+                Text = q.Name,
+                Value = q.Id.ToString(),
+                Selected = false,
+            });
+            return View(model);
         }
 
         [Authorize]
@@ -87,14 +99,29 @@ namespace WebRole.Controllers
                 new SqlParameter("p3", true),
                 new SqlParameter("p4", currentUser.Id),
                 new SqlParameter("p5", model.Category),
-                new SqlParameter("p6", model.ImageUrl)
+                new SqlParameter("p6", String.IsNullOrEmpty(model.ImageUrl) ? "":model.ImageUrl)
             });
+
+            var result = DAL.SelectData("SELECT * FROM Book WHERE Active=1", null);
+            var newBook = result.Rows[result.Rows.Count - 1];
+
+            if (model.SelectedCategories != null)
+            {
+                foreach (var item in model.SelectedCategories)
+                {
+                    DAL.Excutecommand("INSERT INTO BookCategoryMapping(BookId, BookCategoryId, Active) VALUES(@p1,@p2,@p3);", new SqlParameter[] {
+                    new SqlParameter("p1", newBook["Id"].ToString()),
+                    new SqlParameter("p2", item),
+                    new SqlParameter("p3", true),
+                });
+                }
+            }
 
             DAL.Close();
 
             if (imageBlob != null)
             {
-                var queueMessage = new CloudQueueMessage(model.Id.ToString());
+                var queueMessage = new CloudQueueMessage(newBook["Id"].ToString());
                 await imagesQueue.AddMessageAsync(queueMessage);
             }
             return RedirectToAction("Index");
@@ -105,12 +132,25 @@ namespace WebRole.Controllers
         public ActionResult Edit(int Id)
         {
             DAL.Open();
-            var result = DAL.SelectData("SELECT * FROM Book WHERE Id=@p1", new SqlParameter[]{
+            var result = DAL.SelectData("SELECT Book.Id, Book.Name, Book.Description, Book.ImageUrl, Book.ThumbnailUrl, Book.Active, Book.Category, AspNetUsers.UserName FROM Book LEFT JOIN AspNetUsers ON Book.AccountId = AspNetUsers.Id WHERE Book.Active=1 AND Book.Id=@p1", new SqlParameter[]{
                 new SqlParameter("p1",Id),
             });
+            var categoriesDB = DAL.SelectData("SELECT * FROM BookCategory", null);
+            var categories = Utils.ConvertDatatableToCategory(categoriesDB);
+            var selectedCategoriesDB = DAL.SelectData("SELECT * FROM BookCategoryMapping WHERE BookId = @p1", new SqlParameter[]{
+                new SqlParameter("p1",Id),
+            });
+            var selectedCategories = Utils.ConvertDatatableToBookCategoryMapping(selectedCategoriesDB).Select(q => q.BookCategoryId);
+            Book model = new Book();
             var listModel = ConvertDatatableToBook(result);
-            var model = listModel.FirstOrDefault();
-            if(model == null)
+            model = listModel.FirstOrDefault();
+            model.Categories = categories.Select(q => new SelectListItem()
+            {
+                Text = q.Name,
+                Value = q.Id.ToString(),
+                Selected = selectedCategories.Contains(q.Id),
+            });
+            if (model == null)
             {
                 return HttpNotFound();
             }
@@ -122,6 +162,23 @@ namespace WebRole.Controllers
         public ActionResult Edit(Book model, HttpPostedFileBase imageFile)
         {
             DAL.Open();
+
+            DAL.Excutecommand("DELETE FROM BookCategoryMapping WHERE BookId=@p1", new SqlParameter[] {
+                new SqlParameter("p1", model.Id),
+            });
+
+            if (model.SelectedCategories != null)
+            {
+                foreach (var item in model.SelectedCategories)
+                {
+                    DAL.Excutecommand("INSERT INTO BookCategoryMapping(BookId, BookCategoryId, Active) VALUES(@p1,@p2,@p3);", new SqlParameter[] {
+                        new SqlParameter("p1", model.Id),
+                        new SqlParameter("p2", item),
+                        new SqlParameter("p3", true),
+                    });
+                }
+            }
+
             DAL.Excutecommand("UPDATE Book SET Name=@p1, Description=@p2 WHERE Id=@p3", new SqlParameter[] {
                 new SqlParameter("p1", model.Name),
                 new SqlParameter("p2", model.Description),
@@ -136,13 +193,18 @@ namespace WebRole.Controllers
         [Authorize]
         public ActionResult Delete(int Id)
         {
+            //DAL.Open();
+            //DAL.Excutecommand("DELETE FROM Book WHERE Id=@p1", new SqlParameter[] {
+            //    new SqlParameter("p1", Id)
+            //});
+
+            //DAL.Close();
             DAL.Open();
-            DAL.Excutecommand("DELETE FROM Book WHERE Id=@p1", new SqlParameter[] {
+            DAL.Excutecommand("UPDATE Book SET Active=0 WHERE Id=@p1", new SqlParameter[] {
                 new SqlParameter("p1", Id)
             });
 
             DAL.Close();
-            Book model = new Book();
             return RedirectToAction("Index");
         }
 
@@ -150,7 +212,7 @@ namespace WebRole.Controllers
         public ActionResult Detail(int Id)
         {
             DAL.Open();
-            var result = DAL.SelectData("SELECT * FROM Book WHERE Id=@p1", new SqlParameter[]{
+            var result = DAL.SelectData("SELECT Book.Id, Book.Name, Book.Description, Book.ImageUrl, Book.ThumbnailUrl, Book.Active, Book.Category, AspNetUsers.UserName FROM Book LEFT JOIN AspNetUsers ON Book.AccountId = AspNetUsers.Id WHERE Book.Active=1 AND Book.Id=@p1", new SqlParameter[]{
                 new SqlParameter("p1",Id),
             });
             var listModel = ConvertDatatableToBook(result);
@@ -211,10 +273,11 @@ namespace WebRole.Controllers
                     Id = Convert.ToInt32(item["Id"]),
                     Name = item["Name"].ToString(),
                     Description = item["Description"].ToString(),
-                    Category = (Category)Enum.Parse(typeof(Category), item["Category"].ToString(), true),
+                    Category = String.IsNullOrEmpty(item["Category"].ToString()) ? Category.None : (Category)Enum.Parse(typeof(Category), item["Category"].ToString(), true),
                     ImageUrl = item["ImageUrl"].ToString(),
                     ThumbnailUrl = item["ThumbnailUrl"].ToString(),
-                    Active = Convert.ToBoolean(item["Id"]),
+                    Active = Convert.ToBoolean(item["Active"]),
+                    UserName = item["UserName"].ToString(),
                 };
             }
         }

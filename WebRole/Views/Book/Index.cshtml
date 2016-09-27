@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var username = System.Web.HttpContext.Current.User.Identity.Name;
     var count = 0;
 }
 
@@ -17,17 +18,11 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Id</th>
             <th>Name</th>
             <th>Description</th>
-            <th>Category</th>
-            <th>Image</th>
             <th>Thumbnail</th>
-            <th>Active</th>
-            @if (Request.IsAuthenticated)
-            {
-                <th align="center">Action</th>
-            }
+            <th>Username</th>
+            <th align="center">Action</th>
         </tr>
     </thead>
     <tbody>
@@ -36,34 +31,25 @@
             <tr>
                 <td>@(++count)</td>
                 <td>
-                    @(item.Id)
-                </td>
-                <td>
                     @(item.Name)
                 </td>
                 <td>
                     @(item.Description)
                 </td>
                 <td>
-                    @(item.Category)
-                </td>
-                <td>
-                    <img src="@(item.ImageUrl)" alt="@(item.Name)" />
-                </td>
-                <td>
                     <img src="@(item.ThumbnailUrl)" alt="@(item.Name)" />
                 </td>
                 <td>
-                    @(item.Active)
+                    @(item.UserName)
                 </td>
-                @if (Request.IsAuthenticated)
-                {
-                    <td align="center">
-                        <a class="btn btn-sm btn-primary" href="@Url.Action("Detail", new { id = item.Id })"> Detail</a> <br />
-                        <a class="btn btn-sm btn-primary" href="@Url.Action("Edit", new { id = item.Id })"> Edit</a> <br/>
-                        <a class="btn btn-sm btn-primary" href="@Url.Action("Delete", new { id = item.Id })"> Delete</a>
-                    </td>
-                }
+                <td align="center">
+                    <a class="btn btn-sm btn-primary" href="@Url.Action("Detail", new { id = item.Id })"> Detail</a> <br />
+                    @if (item.UserName == username)
+                    {
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("Edit",new { id=item.Id})"> Edit</a> <br />
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("Delete",new { id=item.Id})"> Delete</a>
+                    }
+                </td>
             </tr>
         }
 

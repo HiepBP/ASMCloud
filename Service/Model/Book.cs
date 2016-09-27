@@ -5,12 +5,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 
 namespace Service.Model
 {
     public enum Category
     {
+        None,
         Advanture,
         Drama,
         Horror,
@@ -34,6 +36,9 @@ namespace Service.Model
         public string ImageUrl { get; set; }
         public string ThumbnailUrl { get; set; }
         public bool Active { get; set; }
+        public string UserName { get; set; }
+        public IEnumerable<SelectListItem> Categories { get; set; }
+        public int[] SelectedCategories { get; set; }
         public IEnumerable<Comment> Comment { get; set; }
     }
 }
