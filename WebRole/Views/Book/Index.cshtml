@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿@model IEnumerable<Service.Model.Book>
 
 @{
@@ -43,6 +44,7 @@
                     @(item.UserName)
                 </td>
                 <td align="center">
+                    <a class="btn btn-sm btn-primary" href="@Url.Action("Detail", new { id = item.Id })"> Detail</a> <br />
                     @if (item.UserName == username)
                     {
                         <a class="btn btn-sm btn-primary" href="@Url.Action("Edit",new { id=item.Id})"> Edit</a> <br />

@@ -118,6 +118,7 @@
     <Compile Include="Model\Book.cs" />
     <Compile Include="Model\BookCategory.cs" />
     <Compile Include="Model\BookCategoryMapping.cs" />
+    <Compile Include="Model\Comment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
+
 namespace Service.Model
 {
     public enum Category
@@ -38,5 +39,6 @@ namespace Service.Model
         public string UserName { get; set; }
         public IEnumerable<SelectListItem> Categories { get; set; }
         public int[] SelectedCategories { get; set; }
+        public IEnumerable<Comment> Comment { get; set; }
     }
 }
