@@ -9,18 +9,18 @@
 
 <h2>Index</h2>
 
-<a href="@(Url.Action("Create"))" class="btn btn-sm btn-primary">Create</a>
+@if (Request.IsAuthenticated)
+{
+    <a href="@(Url.Action("Create"))" class="btn btn-sm btn-primary">Create</a>
+}
 
 <table class="table table-striped">
     <thead>
         <tr>
             <th>#</th>
-            <th>Id</th>
             <th>Name</th>
             <th>Description</th>
-            <th>Image</th>
             <th>Thumbnail</th>
-            <th>Active</th>
             <th>Username</th>
             <th align="center">Action</th>
         </tr>
@@ -31,22 +31,13 @@
             <tr>
                 <td>@(++count)</td>
                 <td>
-                    @(item.Id)
-                </td>
-                <td>
                     @(item.Name)
                 </td>
                 <td>
                     @(item.Description)
                 </td>
                 <td>
-                    <img src="@Html.Raw(item.ImageUrl)" alt="@(item.Name)" />
-                </td>
-                <td>
                     <img src="@(item.ThumbnailUrl)" alt="@(item.Name)" />
-                </td>
-                <td>
-                    @(item.Active)
                 </td>
                 <td>
                     @(item.UserName)

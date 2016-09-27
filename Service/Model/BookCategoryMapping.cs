@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Service.Model
 {
-    public class BookCategory
+    public class BookCategoryMapping
     {
         public int Id { get; set; }
-        public String Name { get; set; }
-        public String Description { get; set; }
+        public int BookId { get; set; }
+        public int BookCategoryId { get; set; }
         public bool Active { get; set; }
     }
 }

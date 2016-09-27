@@ -47,5 +47,33 @@ namespace Service
                 };
             }
         }
+        
+        public static IEnumerable<BookCategory> ConvertDatatableToCategory(DataTable dt)
+        {
+            foreach (DataRow item in dt.Rows)
+            {
+                yield return new BookCategory()
+                {
+                    Id = Convert.ToInt32(item["Id"]),
+                    Name = item["Name"].ToString(),
+                    Description = item["Description"].ToString(),
+                    Active = Convert.ToBoolean(item["Active"]),
+                };
+            }
+        }
+
+        public static IEnumerable<BookCategoryMapping> ConvertDatatableToBookCategoryMapping(DataTable dt)
+        {
+            foreach (DataRow item in dt.Rows)
+            {
+                yield return new BookCategoryMapping()
+                {
+                    Id = Convert.ToInt32(item["Id"]),
+                    BookId = Convert.ToInt32(item["BookId"]),
+                    BookCategoryId = Convert.ToInt32(item["BookCategoryId"]),
+                    Active = Convert.ToBoolean(item["Active"]),
+                };
+            }
+        }
     }
 }
