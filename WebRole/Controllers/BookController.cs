@@ -146,6 +146,49 @@ namespace WebRole.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        public ActionResult Detail(int Id)
+        {
+            DAL.Open();
+            var result = DAL.SelectData("SELECT * FROM Book WHERE Id=@p1", new SqlParameter[]{
+                new SqlParameter("p1",Id),
+            });
+            var listModel = ConvertDatatableToBook(result);
+            var model = listModel.FirstOrDefault();
+            var comments = DAL.SelectData("SELECT * FROM Comment WHERE BookId=@p1", new SqlParameter[]{
+                new SqlParameter("p1",Id),
+            });
+            model.Comment = ConvertDatatableToComments(comments);
+            
+            if (model == null)
+            {
+                return HttpNotFound();
+            }
+            DAL.Close();
+            return View(model);
+        }
+        [Authorize]
+        public ActionResult CreateComment(String bookID,string comment)
+        {
+            DAL.Open();
+            var Username = System.Web.HttpContext.Current.User.Identity.Name;
+            var users = DAL.SelectData("SELECT * FROM AspNetUsers WHERE Username=@p1", new SqlParameter[]
+            {
+                new SqlParameter("p1", Username),
+            });
+            var currentUser = ConvertDatatableToAspNetUsers(users).FirstOrDefault();
+
+            DAL.Excutecommand("INSERT INTO Comment(CommentContent, UserID,BookID,Username) VALUES(@p1,@p2,@p3,@p4);", new SqlParameter[] {
+                new SqlParameter("p1", comment),
+                new SqlParameter("p2", currentUser.Id),
+                new SqlParameter("p3", Int32.Parse(bookID)),
+                new SqlParameter("p4", currentUser.UserName)
+            });
+
+            DAL.Close();
+            return RedirectToAction("Detail",new { Id = Int32.Parse(bookID)});
+        }
+
         [Authorize]
         private async Task<CloudBlockBlob> UploadAndSaveBlobAsync(HttpPostedFileBase imageFile)
         {
@@ -177,6 +220,22 @@ namespace WebRole.Controllers
         }
 
         [Authorize]
+        private IEnumerable<Comment> ConvertDatatableToComments(DataTable dt)
+        {
+            foreach (DataRow item in dt.Rows)
+            {
+                yield return new Comment()
+                {
+                    CommentId = Convert.ToInt32(item["CommentId"]),
+                    UserID = item["UserID"].ToString(),
+                    BookID = Convert.ToInt32(item["BookID"]),
+                    CommentContent = item["CommentContent"].ToString(),
+                    Username = item["Username"].ToString(),
+                };
+            }
+        }
+
+        [Authorize]
         private IEnumerable<AspNetUser> ConvertDatatableToAspNetUsers(DataTable dt)
         {
             foreach (DataRow item in dt.Rows)
@@ -198,5 +257,7 @@ namespace WebRole.Controllers
                 };
             }
         }
+
+        
     }
 }

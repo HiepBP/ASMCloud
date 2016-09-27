@@ -59,6 +59,7 @@
                 @if (Request.IsAuthenticated)
                 {
                     <td align="center">
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("Detail", new { id = item.Id })"> Detail</a> <br />
                         <a class="btn btn-sm btn-primary" href="@Url.Action("Edit", new { id = item.Id })"> Edit</a> <br/>
                         <a class="btn btn-sm btn-primary" href="@Url.Action("Delete", new { id = item.Id })"> Delete</a>
                     </td>

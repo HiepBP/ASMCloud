@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Service.Model
 {
     public enum Category
@@ -33,5 +34,6 @@ namespace Service.Model
         public string ImageUrl { get; set; }
         public string ThumbnailUrl { get; set; }
         public bool Active { get; set; }
+        public IEnumerable<Comment> Comment { get; set; }
     }
 }
