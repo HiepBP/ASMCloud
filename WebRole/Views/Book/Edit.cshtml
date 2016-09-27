@@ -1,57 +1,61 @@
 ﻿@model Service.Model.Book
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Edit Book";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Edit</h2>
+<div class="row createForm">
+    <div class="col-md-10 col-md-offset-1" style="margin-top: 25px;">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form method="post" enctype="multipart/form-data">
+                    <h4>Edit Book</h4>
+                    <hr />
+                    @Html.HiddenFor(q => q.Id)
+                    @Html.HiddenFor(q => q.Active)
+                    <div class="form-group">
+                        @this.Html.LabelFor(q => q.Name, new { @class = "col-sm-2 control-label" })
+                        <div class="col-sm-10">
+                            @this.Html.TextBoxFor(q => q.Name, new { @class = "form-control" })
+                            @this.Html.ValidationMessageFor(q => q.Name)
+                        </div>
+                    </div>
 
-<form method="post" enctype = "multipart/form-data">
-    @Html.HiddenFor(q => q.Id);
-    @Html.HiddenFor(q => q.Active);
-    <div class="form-group">
-        @this.Html.LabelFor(q => q.Name, new { @class = "col-sm-2 control-label" })
-        <div class="col-sm-10">
-            @this.Html.TextBoxFor(q => q.Name, new { @class = "form-control" })
-            @this.Html.ValidationMessageFor(q => q.Name)
+                    <div class="form-group">
+                        @this.Html.LabelFor(q => q.Description, new { @class = "col-sm-2 control-label" })
+                        <div class="col-sm-10">
+                            @this.Html.TextBoxFor(q => q.Description, new { @class = "form-control" })
+                            @this.Html.ValidationMessageFor(q => q.Description)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2" for="imageFile">Image file</label>
+                        <div class="col-md-10">
+                            <input type="file" name="imageFile" accept="image/*" class="form-control fileupload" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(q => q.Category, new { @class = "col-sm-2 control-label" })
+                        <div class="col-md-10">
+                            <select name="SelectedCategories" multiple>
+                                @foreach (var item in this.Model.Categories)
+                                {
+                                    <option value="@item.Value" selected="@(item.Selected ? "selected":null)"> @item.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-10 col-md-offset-2">
+                        <button class="btn btn-success">Edit</button>
+                        <a href="/Book" class="btn btn-default">Cancel</a>
+                    </div>
+                </form>
+
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="form-group">
-        @this.Html.LabelFor(q => q.Description, new { @class = "col-sm-2 control-label" })
-        <div class="col-sm-10">
-            @this.Html.TextBoxFor(q => q.Description, new { @class = "form-control" })
-            @this.Html.ValidationMessageFor(q => q.Description)
-        </div>
-    </div>
-
-    <div class="form-group">
-        @this.Html.LabelFor(q => q.Category, new { @class = "col-sm-2 control-label" })
-        <div class="col-sm-10">
-            @this.Html.TextBoxFor(q => q.Category, new { @class = "form-control" })
-            @this.Html.ValidationMessageFor(q => q.Category)
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label class="control-label col-md-2" for="imageFile">Image file</label>
-        <div class="col-md-10">
-            <input type="file" name="imageFile" accept="image/*" class="form-control fileupload" />
-        </div>
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(q => q.Category, new { @class = "col-sm-2 control-label" })
-        <div class="col-md-10">
-            <select name="SelectedCategories" multiple>
-                @foreach (var item in this.Model.Categories)
-                {
-                    <option value="@item.Value" selected="@(item.Selected ? "selected":null)"> @item.Text</option>
-                }
-            </select>
-        </div>
-    </div>
-
-    <button class="btn btn-sm btn-primary"> Edit</button>
-</form>

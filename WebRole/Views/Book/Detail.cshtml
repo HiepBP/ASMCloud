@@ -3,65 +3,60 @@
 @{
     ViewBag.Title = "Detail";
 }
+<div class="row">
+    <div class="col-md-10 col-md-offset-1" style="margin-top: 25px;">
+        <div class="panel panel-default detailBook">
+            <div class="panel-body">
+                <h4>Book Detail</h4>
+                <hr />
+                <div class="col-md-8">
+                    <img src="@Html.Raw(Model.ImageUrl)" />
+                </div>
+                <div class="col-md-4 detail">
+                    <p><span>Book Name: </span>@Html.DisplayFor(model => model.Name)</p>
+                    <p><span>Description: </span>@Html.DisplayFor(model => model.Description)</p>
+                    <p><span>Author: </span>@Html.DisplayFor(model => model.UserName)</p>
+                    <p><span>Category: </span>@Html.DisplayFor(model => model.Category)</p>
+                </div>
 
-<h2>Detail</h2>
 
-<div>
-    <h4>Book</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        
-        <dt>
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-
-        <dt>
-            Category
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Category)
-        </dd>
-
-        <dt>
-            Image
-        </dt>
-
-        <dd>
-            <img src="@Html.Raw(Model.ImageUrl)" />
-        </dd>   
-</dl>
-</div>
-<h2>Comments </h2>
-@foreach (var item in this.Model.Comment)
-{
-    <p>@(item.Username) : @(item.CommentContent)</p>
-}
-
-<p>
-    <form method="post" action="@Url.Action("CreateComment","Book")" enctype="multipart/form-data">
-        <div class="form-group">
-            <div>
-                <input type="hidden" name="bookID" class="form-control" value="@Model.Id" />
-                <input name="comment" class="form-control"/>
             </div>
         </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default comments">
+            <div class="panel-body">
+                <h4>Comments</h4>
+                <hr />
+                @foreach (var item in this.Model.Comment)
+                {
+                    <p><span>@(item.Username): </span>@(item.CommentContent)</p>
+                }
+                @if (Request.IsAuthenticated)
+                {
+                    <form method="post" action="@Url.Action("CreateComment","Book")" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <div>
+                                <input type="hidden" name="bookID" class="form-control" value="@Model.Id" />
+                                <input name="comment" class="form-control" placeholder="Write your feedback or comment here" />
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-success">Submit</button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <a href="/Account/Login">Login to Comment</a>
+                }
+                
+            </div>            
+        </div>
         <div>
-            <button class="btn btn-sm btn-primary">Submit</button>
-        </div>     
-    </form>
-</p>
-<div>
-    @Html.ActionLink("Back to List", "Index")
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    </div>
 </div>
