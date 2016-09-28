@@ -216,6 +216,14 @@ namespace WebRole.Controllers
             });
             var listModel = ConvertDatatableToBook(result);
             var model = listModel.FirstOrDefault();
+            var categories = DAL.SelectData("SELECT BookCategory.Id, BookCategory.Name,BookCategory.Description,BookCategory.Active FROM BookCategoryMapping LEFT JOIN BookCategory ON BookCategoryMapping.BookCategoryId = BookCategory.Id WHERE BookCategoryMapping.BookId=@p1 AND BookCategoryMapping.Active = 1 AND BookCategory.Active = 1", new SqlParameter[]{
+                new SqlParameter("p1",Id),
+            });
+            model.Categories = Utils.ConvertDatatableToCategory(categories).Select(q => new SelectListItem() {
+                Text = q.Name,
+                Selected = true,
+                Value = q.Id.ToString(),
+            });
             var comments = DAL.SelectData("SELECT * FROM Comment WHERE BookId=@p1", new SqlParameter[]{
                 new SqlParameter("p1",Id),
             });

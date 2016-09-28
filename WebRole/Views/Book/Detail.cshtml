@@ -16,7 +16,12 @@
                     <p><span>Book Name: </span>@Html.DisplayFor(model => model.Name)</p>
                     <p><span>Description: </span>@Html.DisplayFor(model => model.Description)</p>
                     <p><span>Author: </span>@Html.DisplayFor(model => model.UserName)</p>
-                    <p><span>Category: </span>@Html.DisplayFor(model => model.Category)</p>
+                    <p><span>Category: </span>
+                        @foreach (var item in Model.Categories)
+                        {
+                            <div>@item.Text</div>
+                        }
+                    </p>
                 </div>
 
 
